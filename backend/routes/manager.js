@@ -1,52 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/connection');
-const { generateManagerToken } = require('../auth/manager');
 const { authenticateManager } = require('../middleware/manager');
 
+const {managerLogin} = require('../controllers/managerController')
 
-router.post('/login', (req, res) => {
-    try {
-        const { employee_id, password } = req.body;
-
-        if (!employee_id || !password) {
-            res.status(400).json({ message: "Required Feilds are Missing" });
-        }
-
-        // Authenticate Manager
-        db.query('SELECT * FROM employees WHERE employee_id = ? AND password = ?', [employee_id, password])
-            .then((results) => {
-                if (results[0].length > 0) {
-                    const token = generateManagerToken(employee_id);
-                    res.json({ message: 'Manager authenticated successfully', token });
-                } else {
-                    res.status(401).json({ message: 'Invalid credentials' });
-                }
-            })
-            .catch((error) => {
-                res.status(400).json({ message: "Something went wrong", error })
-            })
-    } catch (error) {
-        console.error('Unexpected error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+const {getManagerProjects} = require('../controllers/projectController')
 
 
-router.get('/all/project', authenticateManager, (req, res) => {
-    try {
-        db.query('SELECT * FROM projects WHERE manager_id = ?', [req.employeeId])
-            .then((results) => {
-                res.json(results[0]);
-            })
-            .catch((error) => {
-                res.status(400).json({ message: "Something went wrong", error })
-            });
-    } catch (error) {
-        console.error('Unexpected error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+router.post('/login', managerLogin);
+router.get('/all/project', authenticateManager, getManagerProjects);
+
+
 
 router.get('/project/:projectId', authenticateManager, (req, res) => {
 
