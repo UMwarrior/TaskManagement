@@ -1,13 +1,15 @@
 const db = require('../db/connection');
 
-async function getProjectEmployeesByID(projectId) {
-    const results = await db.query('SELECT * FROM project_employees WHERE project_id = ?', [projectId]);
-    let employees = [];
-    for (let i = 0; i < results[0].length; i++) {
-        const combination = results[0][i];
-        employees.push(combination.employee_id)
-    }
-    return employees;
+function getProjectEmployeesByID(projectId) {
+    return new Promise(async (resolve)=>{
+        const results = await db.query('SELECT * FROM project_employees WHERE project_id = ?', [projectId]);
+        let employees = [];
+        for (let i = 0; i < results[0].length; i++) {
+            const combination = results[0][i];
+            employees.push(combination.employee_id)
+        }
+        resolve(employees);
+    })
 }
 
 async function allEmployees(req, res) {

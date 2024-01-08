@@ -2,14 +2,11 @@ const db = require('../db/connection')
 const {getProjectEmployeesByID} = require('../controllers/employeeController')
 
 
-async function getProjectByID(projectId) {
-    try {
-        const results = await db.query('SELECT * FROM projects WHERE project_id = ?', [projectId]);
-        return results;
-    } catch(error) {
-        return false;
-    }
-
+function getProjectByID(projectId) {
+    return new Promise((resolve)=>{
+        const results = db.query('SELECT * FROM projects WHERE project_id = ?', [projectId]);
+        resolve(results);
+    })
 }
 
 async function allProjects(req, res) {
@@ -32,7 +29,7 @@ async function projectDetails(req, res) {
                 results[0][0].employees = employees;
                 res.json(results[0][0]);
             } catch (error) {
-                res.status(400).json({ message: "Something went wrong" })
+                res.status(400).json({ message: "Something went wrong" , error })
             }
         } else {
             res.status(400).json({ message: "Something went wrong" })
